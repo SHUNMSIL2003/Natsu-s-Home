@@ -26,4 +26,8 @@
 
         <item name="postSplashScreenTheme">@style/Theme.NatsusHome</item>
     </style>
+
+    <style name="MyPopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@color/my_popup_background</item>
+    </style>
 </resources>

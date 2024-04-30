@@ -37,5 +37,6 @@ public class WallpaperUtils {
             return null; // Indicate no wallpaper set
         }
     }
+
 }
 

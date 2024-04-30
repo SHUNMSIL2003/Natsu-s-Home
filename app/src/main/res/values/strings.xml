@@ -3,4 +3,9 @@
     <string name="app_icon">App Icon</string>
     <string name="app_name_str">App Name</string>
     <string name="app_wallpaper">app wallpaper</string>
+    <string name="app">APP</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="hold_to_change_wallaper">Hold To Change Wallaper</string>
+    <string name="set_wallpaper">Set Wallpaper</string>
+    <string name="remove_wallaper">Remove Wallaper</string>
 </resources>

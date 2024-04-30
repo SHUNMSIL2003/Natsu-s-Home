@@ -10,4 +10,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="bg">#00FFFFFF</color>
     <color name="textmain">#000000</color>
+    <color name="my_popup_background">#DB000000</color>
 </resources>
