@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -37,6 +38,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 import com.google.gson.Gson;
@@ -130,6 +132,15 @@ public class LauncherApp  extends AppCompatActivity {
             finish();
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Your custom back handling logic (e.g., save data, prompt user)
+                // Call super.handleOnBackPressed() if you want default behavior
+                moveTaskToBack(true);
+            }
+        });
+
         Bitmap originalBitmap = getWallpaperBitmap();
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -152,6 +163,7 @@ public class LauncherApp  extends AppCompatActivity {
         final FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(this); // 'this' refers to the context
         layoutManager.setFlexDirection(FlexDirection.ROW); // Set row or column arrangement
         layoutManager.setJustifyContent(JustifyContent.SPACE_EVENLY); // Or other alignment options
+        layoutManager.setFlexWrap(FlexWrap.WRAP);
         appIconRecyclerView.setLayoutManager(layoutManager);
 
         imagePickerLauncher = registerForActivityResult(
@@ -188,6 +200,11 @@ public class LauncherApp  extends AppCompatActivity {
                         return false;
                     });
                     findViewById(R.id.long_click_view_top).setOnLongClickListener(v -> {
+                        v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                        openGallery();
+                        return false;
+                    });
+                    findViewById(R.id.rv_cont).setOnLongClickListener(v -> {
                         v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                         openGallery();
                         return false;

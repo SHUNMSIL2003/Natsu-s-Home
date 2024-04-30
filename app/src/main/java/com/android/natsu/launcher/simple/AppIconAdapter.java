@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -157,15 +158,21 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
     private String getAppName(@NonNull String packageName) {
         final String cachedName = loadName(packageName);
         if (cachedName == null || cachedName.isEmpty()) {
-            final PackageManager pm = context.getPackageManager();
-            ApplicationInfo appInfo;
-            try {
-                appInfo = pm.getApplicationInfo(packageName, 0);
-                final String name = (String) pm.getApplicationLabel(appInfo);
-                saveName(packageName, name);
-                return name;
-            } catch (PackageManager.NameNotFoundException e) {
-                return null;
+            final String FIRSTName = getLaunchableActivity(packageName);
+            if(FIRSTName==null||FIRSTName.isEmpty()||FIRSTName.contains(".")||FIRSTName.contains(packageName)) {
+                final PackageManager pm = context.getPackageManager();
+                ApplicationInfo appInfo;
+                try {
+                    appInfo = pm.getApplicationInfo(packageName, 0);
+                    final String name = (String) pm.getApplicationLabel(appInfo);
+                    saveName(packageName, name);
+                    return name;
+                } catch (PackageManager.NameNotFoundException e) {
+                    return null;
+                }
+            } else {
+                saveName(packageName, FIRSTName);
+                return FIRSTName;
             }
         } else {
             return cachedName;
@@ -216,6 +223,22 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
         });
         popup.show();
     }
+
+    public String getLaunchableActivity(String packageName) {
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setPackage(packageName);
+
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> activities = pm.queryIntentActivities(intent, 0);
+
+        if (!activities.isEmpty()) {
+            return activities.get(0).activityInfo.name;
+        } else {
+            return null;
+        }
+    }
+
 
 }
 

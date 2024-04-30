@@ -46,13 +46,14 @@
         android:layout_height="match_parent"/>
     <LinearLayout
         android:orientation="vertical"
+        android:gravity="top"
         android:id="@+id/top_bar_cont"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <RelativeLayout
             android:importantForAccessibility="yes"
             android:contentDescription="@string/hold_to_change_wallaper"
@@ -68,6 +69,9 @@
                 android:layout_height="0dp"/>
         </RelativeLayout>
         <RelativeLayout
+            android:id="@+id/rv_cont"
+            android:clickable="true"
+            android:importantForAccessibility="no"
             android:layout_width="match_parent"
             android:layout_height="fill_parent">
             <androidx.recyclerview.widget.RecyclerView
@@ -81,9 +85,10 @@
                 android:id="@+id/appIconRecyclerView"
                 app:flexDirection="row"
                 app:justifyContent="center"
+                android:layout_centerVertical="true"
                 app:flexWrap="wrap"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="wrap_content"/>
         </RelativeLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

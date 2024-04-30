@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
 
     <application
+        android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -29,7 +30,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER_APP" />
-                <action android:name="com.android.natsu.launcher.simple.update.apps"/>
             </intent-filter>
         </activity>
         <activity
