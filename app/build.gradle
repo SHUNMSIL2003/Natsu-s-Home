@@ -3,15 +3,15 @@ plugins {
 }
 
 android {
-    namespace 'com.android.natsu.launcher.simple'
+    namespace 'com.natsu.launcher.simple'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.android.natsu.launcher.simple"
+        applicationId "com.natsu.launcher.simple"
         minSdk 33
         targetSdk 34
-        versionCode 5
-        versionName "1.0.3"
+        versionCode 7
+        versionName "1.0.5"
     }
 
     buildTypes {

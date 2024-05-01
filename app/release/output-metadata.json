@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.android.natsu.launcher.simple",
+  "applicationId": "com.natsu.launcher.simple",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 5,
-      "versionName": "1.0.3",
+      "versionCode": 7,
+      "versionName": "1.0.5",
       "outputFile": "app-release.apk"
     }
   ],

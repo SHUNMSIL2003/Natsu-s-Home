@@ -9,6 +9,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="bg">#00FFFFFF</color>
+    <color name="bar_bg">#80FFFFFF</color>
+    <color name="bar_bg_exp">#EBFFFFFF</color>
     <color name="textmain">#000000</color>
+    <color name="fully_trans">#002035BF</color>
     <color name="my_popup_background">#DB000000</color>
 </resources>

@@ -13,13 +13,17 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:clipToOutline="false"
+    android:background="@android:color/transparent"
     tools:context=".LauncherApp">
-    <View
-        android:importantForAccessibility="no"
-        android:background="@drawable/bg"
+    <RelativeLayout
+        android:id="@+id/settings_hh"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content">
+        <include layout="@layout/hh"/>
+    </RelativeLayout>
     <ImageView
+        android:animateLayoutChanges="true"
         android:importantForAccessibility="no"
         android:padding="0dp"
         android:layout_margin="0dp"
@@ -30,6 +34,8 @@
         android:id="@+id/img_view_app_wallpaper"
         android:contentDescription="@string/app_wallpaper"
         android:scaleType="centerCrop"
+        android:background="@android:color/transparent"
+        android:src="@drawable/bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <View
@@ -45,6 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <LinearLayout
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
         android:gravity="top"
         android:id="@+id/top_bar_cont"
@@ -54,11 +61,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <RelativeLayout
+        <LinearLayout
+            android:orientation="vertical"
+            android:animateLayoutChanges="true"
             android:importantForAccessibility="yes"
             android:contentDescription="@string/hold_to_change_wallaper"
             android:id="@+id/long_click_view_top"
-            android:background="@color/bg"
+            android:background="@color/bar_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <View
@@ -67,8 +76,225 @@
                 android:id="@+id/status_bar_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"/>
-        </RelativeLayout>
+            <LinearLayout
+                android:clipToOutline="true"
+                android:clipToPadding="true"
+                android:clipChildren="true"
+                android:padding="16dp"
+                android:layout_marginBottom="6dp"
+                android:orientation="vertical"
+                android:id="@+id/settings_cont"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:animateLayoutChanges="true"
+                android:layout_height="0dp">
+                <LinearLayout
+                    android:paddingStart="12dp"
+                    android:paddingEnd="18dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/change_wallpaper"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:clickable="true"
+                            android:longClickable="false"
+                            android:id="@+id/open_gal_btn"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/opne"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/change_wallpaper"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="14dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/transparent_wallpaper"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:id="@+id/applyTransWall_BTN"
+                            android:layout_gravity="center"
+                            android:clickable="true"
+                            android:longClickable="false"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/apply_transparent_wallpaper"
+                            android:layout_width="wrap_content"
+                            android:gravity="center|end"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorControlNormal"
+                            android:text="@string/apply"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="14dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/background_dim"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/bg_dim_slider"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/background_dim"
+                            android:valueFrom="0"
+                            android:valueTo="50"
+                            android:value="16"
+                            android:layout_width="match_parent"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="14dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="2"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/top_bar_dim"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/bar_dim_slider"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/top_bar_dim"
+                            android:valueFrom="0"
+                            android:valueTo="100"
+                            android:value="32"
+                            android:layout_width="match_parent"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="14dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/reset_cache"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:id="@+id/resetCache_BTN"
+                            android:layout_gravity="center"
+                            android:clickable="true"
+                            android:longClickable="false"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/reset_cache"
+                            android:layout_width="wrap_content"
+                            android:gravity="center|end"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorControlNormal"
+                            android:text="@string/clear"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <TextView
+                    android:alpha="0.64"
+                    android:layout_marginTop="16dp"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:textSize="11sp"
+                    android:textStyle="normal"
+                    android:textColor="?attr/colorControlNormal"
+                    android:text="@string/long_click_anywhere_above_to_collabs_settings_areia"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
         <RelativeLayout
+            android:animateLayoutChanges="true"
             android:id="@+id/rv_cont"
             android:clickable="true"
             android:importantForAccessibility="no"
@@ -89,6 +315,14 @@
                 app:flexWrap="wrap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+            <RelativeLayout
+                android:animateLayoutChanges="true"
+                android:gravity="top|center"
+                android:visibility="visible"
+                android:id="@+id/teto_cont"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

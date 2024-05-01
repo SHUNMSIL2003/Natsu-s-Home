@@ -1,9 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.NatsusHome" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.NatsusHome" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="android:windowIsTranslucent">false</item>
-        <item name="android:windowBackground">@drawable/bg</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="colorPrimary">@color/purple_200</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
@@ -14,6 +15,7 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!--<item name="android:windowLightStatusBar">false</item>-->
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <!-- Customize your theme here. -->
     </style>
@@ -22,7 +24,7 @@
         <item name="windowSplashScreenBackground">@color/MY</item>
 
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_glas</item>
-        <item name="windowSplashScreenAnimationDuration">200</item>
+        <item name="windowSplashScreenAnimationDuration">0</item>
 
         <item name="postSplashScreenTheme">@style/Theme.NatsusHome</item>
     </style>

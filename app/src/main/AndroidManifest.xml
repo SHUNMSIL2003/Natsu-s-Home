@@ -18,9 +18,10 @@
         android:theme="@style/Theme.App.Starting">
 
         <activity
+            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTop"
             android:enabled="true"
-            android:name="com.android.natsu.launcher.simple.LauncherApp"
+            android:name="com.natsu.launcher.simple.LauncherApp"
             android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize"
             android:theme="@style/Theme.App.Starting"
@@ -29,16 +30,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.LAUNCHER_APP" />
             </intent-filter>
         </activity>
         <activity
+            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTop"
             android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize"
             android:exported="true"
             android:theme="@style/Theme.App.Starting"
-            android:name="com.android.natsu.launcher.simple.openShortcut">
+            android:name="com.natsu.launcher.simple.openShortcut">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
