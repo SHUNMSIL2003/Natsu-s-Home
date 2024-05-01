@@ -38,6 +38,26 @@
         android:src="@drawable/bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <androidx.media3.ui.PlayerView
+        android:importantForAccessibility="no"
+        android:clickable="false"
+        android:longClickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:focusedByDefault="false"
+        app:show_shuffle_button="false"
+        app:show_rewind_button="false"
+        app:show_fastforward_button="false"
+        app:show_previous_button="false"
+        app:show_next_button="false"
+        app:show_timeout="0"
+        app:use_controller="false"
+        android:visibility="gone"
+        app:repeat_toggle_modes="all"
+        android:id="@+id/video_background_exo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:resize_mode="zoom"  />
     <View
         android:importantForAccessibility="no"
         app:layout_constraintTop_toTopOf="parent"
@@ -120,6 +140,43 @@
                             android:src="@drawable/opne"
                             android:importantForAccessibility="yes"
                             android:contentDescription="@string/change_wallpaper"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"/>
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="16dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="18dp"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:clickable="false"
+                        android:importantForAccessibility="no"
+                        android:layout_width="match_parent"
+                        android:gravity="center|start"
+                        android:textSize="18sp"
+                        android:textStyle="normal"
+                        android:textColor="?attr/colorControlNormal"
+                        android:text="@string/video_wallpaper"
+                        android:layout_height="wrap_content"/>
+                    <RelativeLayout
+                        android:layout_gravity="center"
+                        android:gravity="center|end"
+                        android:layout_weight="2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:clickable="true"
+                            android:longClickable="false"
+                            android:id="@+id/open_gal_video_btn"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/opne"
+                            android:importantForAccessibility="yes"
+                            android:contentDescription="@string/change_wallpaper_video"
                             android:layout_width="32dp"
                             android:layout_height="32dp"/>
                     </RelativeLayout>

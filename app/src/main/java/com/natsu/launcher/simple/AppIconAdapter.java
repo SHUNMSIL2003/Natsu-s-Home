@@ -12,7 +12,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -30,38 +33,44 @@ import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconViewHolder> {
 
     final private List<AppData> appDataList = new ArrayList<>();
     final private Context context;
-    final private ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2); // Adjust thread pool size as needed
-    final private Executor mainExecutor;
     final private RecyclerView recyclerView;
     final private View mainView;
+    private static final int MaxRes = 512;
 
-    public AppIconAdapter(@NonNull Context context, @NonNull List<String> appDataList, RecyclerView recyclerView, View mainView) {
+    public AppIconAdapter(@NonNull Context context, @NonNull List<String> appDataList, @NonNull RecyclerView recyclerView, @NonNull View mainView) {
         this.context = context;
-        this.mainExecutor = context.getMainExecutor();
         this.recyclerView = recyclerView;
         this.mainView = mainView;
-        this.appDataList.addAll(convertListFormat(appDataList));
+        this.appDataList.addAll(convertListFormat(context, appDataList));
     }
 
-    private List<AppData> convertListFormat(List<String> list) {
+    private List<AppData> convertListFormat(@NonNull Context context, @NonNull List<String> list) {
         final List<AppData> newList = new ArrayList<>();
         final String appPKG = context.getPackageName();
-        while (!list.isEmpty()) {
-            final String item = list.remove(0);
-            if (!item.equals(appPKG)) newList.add(new AppData(item));
+        if (DisplayUtils.isFirst(context)) {
+            while (!list.isEmpty()) {
+                final String PKG = list.remove(0);
+                if (!PKG.equals(appPKG))
+                    newList.add(new AppData(PKG, getAppIConABS(PKG), getAppName(PKG)));
+            }
+        } else {
+            while (!list.isEmpty()) {
+                final String PKG = list.remove(0);
+                if (!PKG.equals(appPKG)) newList.add(new AppData(PKG));
+            }
         }
         return newList;
     }
@@ -76,38 +85,36 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
 
     @Override
     public void onBindViewHolder(@NonNull AppIconViewHolder holder, int position) {
-        final int finalPosition = position;
-        if (position < appDataList.size() && position >= 0) {
-            executor.execute(() -> {
-                final AppData appData = appDataList.get(finalPosition);
-                if (appData.getAppName() == null) {
-                    appData.setAppName(getAppName(appData.getPackageName()));
-                }
-                if (appData.getAppIcon() == null) {
-                    appData.setAppIcon(getAppIcon(appData.getPackageName()));
-                }
-                if (appDataList.get(finalPosition) != appData) {
-                    appDataList.set(finalPosition, appData);
-                }
-                mainExecutor.execute(() -> {
-                    if (holder.appNameView != null && appData.getAppName() != null)
-                        holder.appNameView.setText(appData.getAppName());
-                    if (holder.appIconView != null && appData.getAppIcon() != null)
-                        holder.appIconView.setImageBitmap(appData.getAppIcon());
-                    if (holder.appIconView != null && appData.getAppName() != null)
-                        holder.appIconView.setContentDescription(appData.getAppName());
-                    if (holder.appIconView != null) holder.appIconView.setOnClickListener(v -> {
-                        final String PKG = appData.getPackageName();
-                        startApp(finalPosition, PKG);
-                    });
-                    if (holder.appIconView != null && appData.getPackageName() != null)
-                        holder.appIconView.setOnLongClickListener(v -> {
-                            showPopupMenu(v, appData.getPackageName(), finalPosition);
-                            return true;
-                        });
-                });
-            });
+        final AppData appData = appDataList.get(position);
+        if (appData.getAppName() == null) {
+            appData.setAppName(getAppName(appData.getPackageName()));
         }
+        if (appData.getAppIcon() == null) {
+            appData.setAppIcon(getAppIConABS(appData.getPackageName()));
+        }
+        if (appDataList.get(position) != appData) {
+            appDataList.set(position, appData);
+        }
+        if (holder.appNameView != null && appData.getAppName() != null)
+            holder.appNameView.setText(appData.getAppName());
+        if (holder.appIconView != null && appData.getAppIcon() != null)
+            Glide.with(context)
+                    .load(new File(appData.getAppIcon())) // Directly load from File
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache both original and resized versions
+                    .centerCrop() // Or use your desired crop/fit option
+                    .placeholder(R.drawable.trans)
+                    .into(holder.appIconView);
+        if (holder.appIconView != null && appData.getAppName() != null)
+            holder.appIconView.setContentDescription(appData.getAppName());
+        if (holder.appIconView != null) holder.appIconView.setOnClickListener(v -> {
+            final String PKG = appData.getPackageName();
+            startApp(position, PKG);
+        });
+        if (holder.appIconView != null && appData.getPackageName() != null)
+            holder.appIconView.setOnLongClickListener(v -> {
+                showPopupMenu(v, appData.getPackageName(), position);
+                return true;
+            });
     }
 
     @Override
@@ -126,40 +133,60 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
         }
     }
 
-    private void saveIcon(Bitmap icon, @NonNull String packageName) {
+    private String saveIcon(Bitmap icon, @NonNull String packageName) {
         File wallpaperFile = new File(context.getFilesDir(), packageName + ".png");
         try (FileOutputStream outputStream = new FileOutputStream(wallpaperFile)) {
             icon.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            return wallpaperFile.getAbsolutePath();
         } catch (IOException ignored) {
-        }
-    }
-
-    private Bitmap loadIcon(@NonNull String packageName) {
-        File wallpaperFile = new File(context.getFilesDir(), packageName + ".png");
-        if (wallpaperFile.exists()) {
-            return BitmapFactory.decodeFile(wallpaperFile.getAbsolutePath());
-        } else {
             return null;
         }
     }
 
-    private Bitmap getAppIcon(@NonNull String packageName) {
-        final Bitmap cachedIcon = loadIcon(packageName);
-        if (cachedIcon == null) {
-            try {
-                final PackageManager pm = context.getPackageManager();
-                final ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
-                final Drawable appIcon = pm.getApplicationIcon(appInfo);
-                final Bitmap appIconBit = ((BitmapDrawable) appIcon).getBitmap();
-                if (appIconBit != null) {
-                    saveIcon(appIconBit, packageName);
-                }
-                return appIconBit;
-            } catch (PackageManager.NameNotFoundException e) {
-                return null;
-            }
+    private String loadIcon(@NonNull String packageName) {
+        File wallpaperFile = new File(context.getFilesDir(), packageName + ".png");
+        if (wallpaperFile.exists()) {
+            return wallpaperFile.getAbsolutePath();//BitmapFactory.decodeFile(wallpaperFile.getAbsolutePath());
         } else {
-            return cachedIcon;
+            return null;
+        }
+    }
+    private String getAppIConABS(@NonNull String packageName){
+
+        final String load = loadIcon(packageName);
+
+        if(load!=null&&!load.isEmpty()){
+            return load;
+        } else {
+            Bitmap bitInit = getAppIconSubSer(packageName);
+
+            int width = bitInit.getWidth();
+            int height = bitInit.getHeight();
+
+            if (width <= MaxRes && height <= MaxRes) {
+                return saveIcon(bitInit, packageName);
+            }
+
+            final Bitmap newBit = Bitmap.createScaledBitmap(bitInit, MaxRes, MaxRes, true);
+            return saveIcon(newBit, packageName);
+        }
+    }
+    private Bitmap getAppIconSubSer(@NonNull String packageName) {
+        Bitmap OGBit = getIconOGM(packageName);
+        if (OGBit == null) {
+            return getIconByPkgMain(context, packageName);
+        } else {
+            return OGBit;
+        }
+    }
+    private Bitmap getIconOGM(@NonNull String packageName){
+        try {
+            final PackageManager pm = context.getPackageManager();
+            final ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            final Drawable appIcon = pm.getApplicationIcon(appInfo);
+            return drawableToBitmap(appIcon);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
         }
     }
 
@@ -203,12 +230,11 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
     }
 
     public void shutDown() {
-        executor.shutdown();
     }
 
     @SuppressLint("NotifyDataSetChanged")
     public void replaceAllItems(List<String> appDataList, boolean keepCache) {
-        final List<AppData> cl = convertListFormat(appDataList);
+        final List<AppData> cl = convertListFormat(context, appDataList);
         if (keepCache) {
             if (!isSame(this.appDataList, cl)) {
                 this.appDataList.clear();
@@ -372,17 +398,18 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
 
     private void helpStart(Intent intent) {
         if (intent != null) {
-            ScaleAnimation zoomOut = new ScaleAnimation(1f, 1.5f, 1f, 1.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-            zoomOut.setDuration(2000); // Adjust the duration as needed
-            zoomOut.setFillAfter(true); // Keep the final state after the animation ends
+            ScaleAnimation zoomOut = new ScaleAnimation(1f, 2.25f, 1f, 2.25f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            zoomOut.setDuration(640); // Adjust the duration as needed
+            zoomOut.setFillAfter(false); // Keep the final state after the animation ends
             zoomOut.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
+                    context.startActivity(intent);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    context.startActivity(intent);
+
                 }
 
                 @Override
@@ -390,6 +417,71 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             });
             mainView.startAnimation(zoomOut);
         }
+    }
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        int width = drawable.getIntrinsicWidth();
+        int height = drawable.getIntrinsicHeight();
+
+        // Create a software-accelerated bitmap regardless of the drawable type
+        Bitmap.Config config = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = Bitmap.createBitmap(width, height, config);
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        // Ensure that the drawable is not hardware-backed
+        if (drawable instanceof BitmapDrawable) {
+            drawable.draw(canvas);
+        } else {
+            // Temporarily disable hardware acceleration
+            int saveFlags = canvas.save();
+            canvas.setDrawFilter(new PaintFlagsDrawFilter(Paint.ANTI_ALIAS_FLAG, Paint.FILTER_BITMAP_FLAG));
+            drawable.draw(canvas);
+            canvas.restoreToCount(saveFlags);
+        }
+
+        return bitmap;
+    }
+    private Bitmap getIconByPkgMain(@NonNull Context context,@NonNull final String packageName) {
+        PackageManager packageManager = context.getPackageManager();
+        ApplicationInfo applicationInfo;
+        try {
+            applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return getIconByPkgorg(context,packageName);
+        }
+        Drawable appIconDrawable = applicationInfo.loadIcon(packageManager);
+        if (appIconDrawable instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) appIconDrawable;
+            Drawable foreground = adaptiveIcon.getForeground();
+            Drawable background = adaptiveIcon.getBackground();
+            if(foreground!=null&&background!=null){
+                int width = adaptiveIcon.getIntrinsicWidth();
+                int height = adaptiveIcon.getIntrinsicHeight();
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                background.setBounds(0, 0, width, height);
+                background.draw(canvas);
+                foreground.setBounds(0, 0, width, height);
+                foreground.draw(canvas);
+                return bitmap;
+            }else {
+                return getIconByPkgorg(context,packageName);
+            }
+        }else {
+            return getIconByPkgorg(context,packageName);
+        }
+    }
+    private Bitmap getIconByPkgorg(@NonNull Context context, @NonNull final String pkgName){
+        PackageManager packageManager = context.getPackageManager();
+        ApplicationInfo applicationInfo;
+        try {
+            applicationInfo = packageManager.getApplicationInfo(pkgName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+        Drawable appIcon = applicationInfo.loadIcon(packageManager);
+        return  drawableToBitmap(appIcon);
     }
 
 

@@ -40,11 +40,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -57,11 +63,40 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class LauncherApp  extends AppCompatActivity {
 
     private final List<String> packageNames = new ArrayList<>();
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    final int executorThreadPool = 4;//Runtime.getRuntime().availableProcessors();
+    final private ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(executorThreadPool);
+    private ExoPlayer player;
+    private PlayerView playerView;
+    private String getVideoExtFromURI(Uri uri){
+        final String uriString = uri.toString();
+        if(uriString.contains(".")) {
+            return uriString.substring(uriString.lastIndexOf("."));
+        } else {
+            return ".mp4";
+        }
+    }
+    private final ActivityResultLauncher<Intent> videoPickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    executor.execute(() -> {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            final Uri videoUri = data.getData();
+                            if(videoUri!=null) {
+                                WallpaperUtils.saveVideoWallpaper(getBaseContext(), player, findViewById(R.id.main_ac), videoUri, getVideoExtFromURI(videoUri));
+                            }
+                        }
+                    });
+                }
+            });
     private AppIconAdapter adapter;
     private boolean settingsVisible = false;
     private final int animD = 320;
@@ -198,18 +233,22 @@ public class LauncherApp  extends AppCompatActivity {
         layoutManager.setFlexWrap(FlexWrap.WRAP);
         appIconRecyclerView.setLayoutManager(layoutManager);
 
+        player = new ExoPlayer.Builder(this).build();
+        playerView = findViewById(R.id.video_background_exo);
+        playerView.setPlayer(player);
+
+        playVideoFromPrivateStorage();
+
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                result -> {
+                result -> executor.execute(() -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
-                        // Handle the selected image URI (data.getData())
                         if (data != null) {
-                            setWallpaperBitmap(data.getData());
-                            cropAndSaveImage();
+                            WallpaperUtils.saveWallpaper(getBaseContext(), findViewById(R.id.main_ac), Objects.requireNonNull(data.getData()));
                         }
                     }
-                }
+                })
         );
 
         final List<String> quenchablePackageNames = getAppsList();
@@ -225,6 +264,9 @@ public class LauncherApp  extends AppCompatActivity {
             adapter = new AppIconAdapter(getBaseContext(), packageNames, appIconRecyclerView, mainView);
             appIconRecyclerView.setAdapter(adapter);
         }
+
+
+
         mainView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -233,11 +275,15 @@ public class LauncherApp  extends AppCompatActivity {
                         v.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
                         openGallery();
                     });
+                    findViewById(R.id.open_gal_video_btn).setOnClickListener(v -> {
+                        v.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
+                        pickVideoWallpaper();
+                    });
                     findViewById(R.id.applyTransWall_BTN).setOnClickListener(v -> {
                         v.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
                         wallpaper.setImageResource(R.drawable.fully_trans);
-                        wallpaper.setVisibility(View.INVISIBLE);
-                        WallpaperUtils.resetWallpaper(getBaseContext());
+                        //wallpaper.setVisibility(View.INVISIBLE);
+                        executor.execute(() -> WallpaperUtils.resetWallpaper(getBaseContext(), findViewById(R.id.main_ac)));
                     });
                     findViewById(R.id.resetCache_BTN).setOnClickListener(v -> {
                         v.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
@@ -381,7 +427,7 @@ public class LauncherApp  extends AppCompatActivity {
                         return true;
                     });
                     setCrashState(false);
-                    if (isFirst()) {
+                    if (DisplayUtils.isFirst(getBaseContext())) {
                         final RelativeLayout tetoCont = findViewById(R.id.teto_cont);
                         final View teto = LayoutInflater.from(tetoCont.getContext())
                                 .inflate(R.layout.teto, tetoCont, false);
@@ -399,6 +445,28 @@ public class LauncherApp  extends AppCompatActivity {
         });
 
 
+    }
+
+    private void pickVideoWallpaper(){
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        videoPickerLauncher.launch(intent);
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    private void playVideoFromPrivateStorage() {
+        final File videoFile = new File(getFilesDir(), WallpaperUtils.VIDEO_WALLPAPER_FILENAME+WallpaperUtils.getVideoWallpaperExt(getBaseContext()));
+        if (videoFile.exists()) {
+            final Uri videoUri = Uri.fromFile(videoFile);
+            MediaItem mediaItem = MediaItem.fromUri(videoUri);
+            player.setMediaItem(mediaItem);
+            player.setVolume(0.0f);
+            player.setRepeatMode(ExoPlayer.REPEAT_MODE_ALL);
+            player.prepare();
+            player.play();
+            playerView.setVisibility(View.VISIBLE);
+        } else {
+            playerView.setVisibility(View.GONE);
+        }
     }
 
     private void loadColors(){
@@ -455,31 +523,9 @@ public class LauncherApp  extends AppCompatActivity {
         return prefs.getInt("top_bar_alpha", 32);
     }
 
-    private boolean isFirst() {
-        final boolean firstState = loadAppFirstState();
-        if (firstState) {
-            setAppFirstState();
-        }
-        return firstState;
-    }
-
-    private void setAppFirstState() {
-        SharedPreferences prefs = getSharedPreferences("app_load_state", MODE_PRIVATE);
-        prefs.edit().putBoolean("firstLoad", false).apply();
-    }
-
-    private boolean loadAppFirstState() {
-        SharedPreferences prefs = getSharedPreferences("app_load_state", MODE_PRIVATE);
-        return prefs.getBoolean("firstLoad", true);
-    }
-
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-    }
-
-    private void setWallpaperBitmap(Uri uri) {
-        WallpaperUtils.saveWallpaper(getBaseContext(), uri);
     }
 
     private Bitmap getWallpaperBitmap() {
@@ -489,18 +535,6 @@ public class LauncherApp  extends AppCompatActivity {
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         imagePickerLauncher.launch(intent);
-    }
-
-    private void cropAndSaveImage() {
-        try {
-            Bitmap originalBitmap = getWallpaperBitmap();
-            ((ImageView) findViewById(R.id.img_view_app_wallpaper)).setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ((ImageView) findViewById(R.id.img_view_app_wallpaper)).setImageBitmap(originalBitmap);
-            findViewById(R.id.img_view_app_wallpaper).setVisibility(View.VISIBLE);
-        } catch (Exception e) {
-            Toast.makeText(getBaseContext(), "null wallaper", Toast.LENGTH_SHORT).show();
-            // Handle potential errors
-        }
     }
 
     private List<String> getLaunchablePackageNames() {
@@ -531,12 +565,23 @@ public class LauncherApp  extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         if (adapter != null) adapter.shutDown();
+        if(WallpaperUtils.isVideoAvailable(getBaseContext())) {
+            if(WallpaperUtils.isVideoAvailable(getBaseContext())){
+                if(player!=null)
+                        player.release();
+            }
+        }
         super.onDestroy();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if(WallpaperUtils.isVideoAvailable(getBaseContext())){
+            if(player!=null)
+                if(player.getDuration()>0)
+                    player.play();
+        }
         final List<String> newList = getLaunchablePackageNames();
         if (newList != packageNames) {
             packageNames.clear();
@@ -545,20 +590,32 @@ public class LauncherApp  extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(WallpaperUtils.isVideoAvailable(getBaseContext())){
+            if(player!=null)
+                if(player.isPlaying())
+                    player.pause();
+        }
+    }
+
     private void resetCache() {
-        final Bitmap wall = WallpaperUtils.loadWallpaper(getBaseContext());
-        deleteDirectoryContent(getFilesDir());
-        if (wall != null) {
-            WallpaperUtils.saveWallpaper(getBaseContext(), wall);
-        }
-        if (adapter != null) {
-            final List<String> newList = getLaunchablePackageNames();
-            if (newList != packageNames) {
-                packageNames.clear();
-                packageNames.addAll(newList);
-                if (adapter != null) adapter.replaceAllItems(packageNames, false);
+        executor.execute(() -> {
+            deleteDirectoryContent(getFilesDir());
+            Glide.get(getBaseContext()).clearDiskCache();
+
+            if (adapter != null) {
+                final List<String> newList = getLaunchablePackageNames();
+                if (newList != packageNames) {
+                    packageNames.clear();
+                    packageNames.addAll(newList);
+                    getMainExecutor().execute(() -> {
+                        if (adapter != null) adapter.replaceAllItems(packageNames, false);
+                    });
+                }
             }
-        }
+        });
     }
 
     private void deleteDirectoryContent(File directory) {
@@ -569,7 +626,8 @@ public class LauncherApp  extends AppCompatActivity {
                     if (file.isDirectory()) {
                         deleteDirectoryContent(file);  // Recursive call for subdirectories
                     } else {
-                        file.delete();
+                        if(!Objects.equals(file.getName(), WallpaperUtils.WALLPAPER_FILENAME) &&
+                                !Objects.equals(file.getName(), WallpaperUtils.VIDEO_WALLPAPER_FILENAME+WallpaperUtils.getVideoWallpaperExt(getBaseContext()))) file.delete();
                     }
                 }
             }

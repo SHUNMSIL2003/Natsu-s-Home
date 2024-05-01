@@ -49,6 +49,39 @@
             </RelativeLayout>
         </LinearLayout>
         <LinearLayout
+            android:layout_marginTop="16dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="18dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:importantForAccessibility="no"
+                android:layout_width="match_parent"
+                android:gravity="center|start"
+                android:textSize="18sp"
+                android:textStyle="normal"
+                android:text="@string/video_wallpaper"
+                android:layout_height="wrap_content"/>
+            <RelativeLayout
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:clickable="false"
+                    android:longClickable="false"
+                    android:scaleType="fitCenter"
+                    android:importantForAccessibility="no"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"/>
+            </RelativeLayout>
+        </LinearLayout>
+        <LinearLayout
             android:layout_marginTop="14dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"

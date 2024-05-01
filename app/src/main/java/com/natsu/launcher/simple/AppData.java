@@ -1,19 +1,23 @@
 package com.natsu.launcher.simple;
 
-import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 
 public class AppData {
     final private String packageName;
     private String appName = null;
-    private Bitmap appIcon = null;
+    private String appIcon = null;
 
     public AppData(@NonNull String packageName) {
         this.packageName = packageName;
     }
+    public AppData(@NonNull String packageName, String appIcon, String appName) {
+        this.packageName = packageName;
+        this.appIcon = appIcon;
+        this.appName = appName;
+    }
 
-    public void setAppIcon(Bitmap appIcon) {
+    public void setAppIcon(String appIcon) {
         this.appIcon = appIcon;
     }
 
@@ -21,7 +25,7 @@ public class AppData {
         this.appName = appName;
     }
 
-    public Bitmap getAppIcon() {
+    public String getAppIcon() {
         return appIcon;
     }
 

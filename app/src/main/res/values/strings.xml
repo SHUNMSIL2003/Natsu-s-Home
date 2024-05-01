@@ -5,17 +5,20 @@
     <string name="app_wallpaper">app wallpaper</string>
     <string name="app">APP</string>
     <string name="uninstall">Uninstall</string>
-    <string name="hold_to_change_wallaper">Hold To Change Wallaper</string>
+    <string name="hold_to_change_wallaper">Hold To Change Wallpaper Photo</string>
     <string name="set_wallpaper">Set Wallpaper</string>
-    <string name="remove_wallaper">Remove Wallaper</string>
-    <string name="change_wallpaper">Change Wallpaper</string>
+    <string name="remove_wallaper">Remove Wallpaper</string>
+    <string name="change_wallpaper">Photo Wallpaper</string>
     <string name="transparent_wallpaper">Transparent Wallpaper</string>
     <string name="apply_transparent_wallpaper">Apply Transparent Wallpaper</string>
     <string name="apply">APPLY</string>
     <string name="reset_cache">Icons Cache</string>
     <string name="clear">CLEAR</string>
-    <string name="long_click_anywhere_above_to_collabs_settings_areia">long click anywhere above to collapse settings area!</string>
-    <string name="long_click_the_areaia_above_to_show_settings">Long Click the area above to show Settings!</string>
+    <string name="long_click_anywhere_above_to_collabs_settings_areia">long Press anywhere above to collapse settings area!</string>
+    <string name="long_click_the_areaia_above_to_show_settings">Long Press the area above to show Settings!</string>
     <string name="background_dim">Background DIM</string>
     <string name="top_bar_dim">Top Bar DIM</string>
+    <string name="video_wallpaper">Video Wallpaper</string>
+    <string name="change_wallpaper_video">change wallpaper video</string>
+    <string name="app_info">App Info</string>
 </resources>
