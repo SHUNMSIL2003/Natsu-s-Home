@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,9 +50,11 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
     final private RecyclerView recyclerView;
     final private View mainView;
     private static final int MaxRes = 512;
+    private final DecelerateInterpolator animInterpolator;
 
     public AppIconAdapter(@NonNull Context context, @NonNull List<String> appDataList, @NonNull RecyclerView recyclerView, @NonNull View mainView) {
         this.context = context;
+        animInterpolator = new DecelerateInterpolator();
         this.recyclerView = recyclerView;
         this.mainView = mainView;
         this.appDataList.addAll(convertListFormat(context, appDataList));
@@ -151,11 +154,12 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             return null;
         }
     }
-    private String getAppIConABS(@NonNull String packageName){
+
+    private String getAppIConABS(@NonNull String packageName) {
 
         final String load = loadIcon(packageName);
 
-        if(load!=null&&!load.isEmpty()){
+        if (load != null && !load.isEmpty()) {
             return load;
         } else {
             Bitmap bitInit = getAppIconSubSer(packageName);
@@ -171,6 +175,7 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             return saveIcon(newBit, packageName);
         }
     }
+
     private Bitmap getAppIconSubSer(@NonNull String packageName) {
         Bitmap OGBit = getIconOGM(packageName);
         if (OGBit == null) {
@@ -179,7 +184,8 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             return OGBit;
         }
     }
-    private Bitmap getIconOGM(@NonNull String packageName){
+
+    private Bitmap getIconOGM(@NonNull String packageName) {
         try {
             final PackageManager pm = context.getPackageManager();
             final ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
@@ -315,14 +321,17 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
         }
     }
 
-    private float scaleHelper(int a, int b){
-        double p = ((double)a /(double)b);
-        if(a>b) p = ((double)b /(double)a);
-        if(a==b) return 0.5f;
-        if(p>=1.0) return 0.9f;
-        if(p<=0) return 0.1f;
+    private float scaleHelper(int a, int b) {
+        double p = ((double) a / (double) b);
+        if (a > b) p = ((double) b / (double) a);
+        if (a == b) return 0.5f;
+        if (p >= 1.0) return 0.9f;
+        if (p <= 0) return 0.1f;
         return (float) p;
     }
+
+    private ScaleAnimation zoomIn_openIntent;
+    private boolean zoomOut_openIntent_state = false;
 
     private void openIntent(int position, Intent intent) {
         if (intent != null) {
@@ -350,8 +359,8 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
                             final float x = scaleHelper(xScreen, width);
                             final float y = scaleHelper(yScreen, height);
 
-                            int ox = (int) (x*width) + iconView.getWidth()/2;
-                            int oy = (int) (y*height) + iconView.getHeight()/2;
+                            int ox = (int) (x * width) + iconView.getWidth() / 2;
+                            int oy = (int) (y * height) + iconView.getHeight() / 2;
 
                             final ActivityOptions optionsMakeScaleUpAnimation = ActivityOptions.makeScaleUpAnimation(
                                     mainView,
@@ -361,23 +370,48 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
                                     iconView.getHeight());
 
                             if (optionsMakeScaleUpAnimation != null) {
-                                ScaleAnimation zoomOut = new ScaleAnimation(1f, 2.25f, 1f, 2.25f, Animation.RELATIVE_TO_SELF, x, Animation.RELATIVE_TO_SELF, y);
-                                zoomOut.setDuration(640); // Adjust the duration as needed
-                                zoomOut.setFillAfter(false); // Keep the final state after the animation ends
-                                zoomOut.setAnimationListener(new Animation.AnimationListener() {
+                                ScaleAnimation zoomOut_openIntent = new ScaleAnimation(1f, 2.25f, 1f, 2.25f, Animation.RELATIVE_TO_SELF, x, Animation.RELATIVE_TO_SELF, y);
+                                zoomOut_openIntent.setDuration(640); // Adjust the duration as needed
+                                zoomOut_openIntent.setFillAfter(false); // Keep the final state after the animation ends
+                                zoomOut_openIntent.setInterpolator(animInterpolator);
+                                zoomOut_openIntent.setAnimationListener(new Animation.AnimationListener() {
                                     @Override
                                     public void onAnimationStart(Animation animation) {
+                                        zoomOut_openIntent_state = true;
+                                        LauncherApp.changeWallpaper = true;
                                         context.startActivity(intent, optionsMakeScaleUpAnimation.toBundle());
                                     }
 
                                     @Override
                                     public void onAnimationEnd(Animation animation) {
+                                        LauncherApp.changeWallpaper = true;
                                     }
 
                                     @Override
-                                    public void onAnimationRepeat(Animation animation) {}
+                                    public void onAnimationRepeat(Animation animation) {
+                                    }
                                 });
-                                mainView.startAnimation(zoomOut);
+                                zoomIn_openIntent = new ScaleAnimation(1.125f, 1.0f, 1.125f, 1.0f, Animation.RELATIVE_TO_SELF, x, Animation.RELATIVE_TO_SELF, y);
+                                zoomIn_openIntent.setDuration(300); // Adjust the duration as needed
+                                zoomIn_openIntent.setFillAfter(false); // Keep the final state after the animation ends
+                                zoomIn_openIntent.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+                                        LauncherApp.changeWallpaper = false;
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                zoomIn_openIntent.setInterpolator(animInterpolator);
+                                mainView.startAnimation(zoomOut_openIntent);
                             } else {
                                 helpStart(intent);
                             }
@@ -396,15 +430,19 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
         }
     }
 
+    private ScaleAnimation zoomIn_helpStart;
+    private boolean zoomOut_helpStart_state = false;
+
     private void helpStart(Intent intent) {
         if (intent != null) {
-            ScaleAnimation zoomOut = new ScaleAnimation(1f, 2.25f, 1f, 2.25f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-            zoomOut.setDuration(640); // Adjust the duration as needed
-            zoomOut.setFillAfter(false); // Keep the final state after the animation ends
-            zoomOut.setAnimationListener(new Animation.AnimationListener() {
+            ScaleAnimation zoomOut_helpStart = getScaleAnimation(intent);
+            zoomIn_helpStart = new ScaleAnimation(1.125f, 1.0f, 1.125f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            zoomIn_helpStart.setDuration(300); // Adjust the duration as needed
+            zoomIn_helpStart.setFillAfter(false); // Keep the final state after the animation ends
+            zoomIn_helpStart.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    context.startActivity(intent);
+                    LauncherApp.changeWallpaper = false;
                 }
 
                 @Override
@@ -413,11 +451,41 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation) {}
+                public void onAnimationRepeat(Animation animation) {
+
+                }
             });
-            mainView.startAnimation(zoomOut);
+            zoomIn_helpStart.setInterpolator(animInterpolator);
+            mainView.startAnimation(zoomOut_helpStart);
         }
     }
+
+    @NonNull
+    private ScaleAnimation getScaleAnimation(Intent intent) {
+        ScaleAnimation zoomOut_helpStart = new ScaleAnimation(1f, 2.25f, 1f, 2.25f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        zoomOut_helpStart.setDuration(640); // Adjust the duration as needed
+        zoomOut_helpStart.setFillAfter(false); // Keep the final state after the animation ends
+        zoomOut_helpStart.setInterpolator(animInterpolator);
+        zoomOut_helpStart.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                zoomOut_helpStart_state = true;
+                LauncherApp.changeWallpaper = true;
+                context.startActivity(intent);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                LauncherApp.changeWallpaper = true;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        return zoomOut_helpStart;
+    }
+
     private Bitmap drawableToBitmap(Drawable drawable) {
         int width = drawable.getIntrinsicWidth();
         int height = drawable.getIntrinsicHeight();
@@ -442,20 +510,21 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
 
         return bitmap;
     }
-    private Bitmap getIconByPkgMain(@NonNull Context context,@NonNull final String packageName) {
+
+    private Bitmap getIconByPkgMain(@NonNull Context context, @NonNull final String packageName) {
         PackageManager packageManager = context.getPackageManager();
         ApplicationInfo applicationInfo;
         try {
             applicationInfo = packageManager.getApplicationInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
-            return getIconByPkgorg(context,packageName);
+            return getIconByPkgorg(context, packageName);
         }
         Drawable appIconDrawable = applicationInfo.loadIcon(packageManager);
         if (appIconDrawable instanceof AdaptiveIconDrawable) {
             AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) appIconDrawable;
             Drawable foreground = adaptiveIcon.getForeground();
             Drawable background = adaptiveIcon.getBackground();
-            if(foreground!=null&&background!=null){
+            if (foreground != null && background != null) {
                 int width = adaptiveIcon.getIntrinsicWidth();
                 int height = adaptiveIcon.getIntrinsicHeight();
                 Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -465,14 +534,15 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
                 foreground.setBounds(0, 0, width, height);
                 foreground.draw(canvas);
                 return bitmap;
-            }else {
-                return getIconByPkgorg(context,packageName);
+            } else {
+                return getIconByPkgorg(context, packageName);
             }
-        }else {
-            return getIconByPkgorg(context,packageName);
+        } else {
+            return getIconByPkgorg(context, packageName);
         }
     }
-    private Bitmap getIconByPkgorg(@NonNull Context context, @NonNull final String pkgName){
+
+    private Bitmap getIconByPkgorg(@NonNull Context context, @NonNull final String pkgName) {
         PackageManager packageManager = context.getPackageManager();
         ApplicationInfo applicationInfo;
         try {
@@ -481,7 +551,27 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             return null;
         }
         Drawable appIcon = applicationInfo.loadIcon(packageManager);
-        return  drawableToBitmap(appIcon);
+        return drawableToBitmap(appIcon);
+    }
+
+    public void stopZoomAnimation() {
+        if (zoomOut_openIntent_state) {
+            zoomOut_openIntent_state = false;
+            if (zoomIn_openIntent != null) {
+                if(mainView!=null) {
+                    mainView.startAnimation(zoomIn_openIntent);
+                }
+            }
+        } else {
+            if (zoomOut_helpStart_state) {
+                zoomOut_helpStart_state = false;
+                if (zoomIn_helpStart != null) {
+                    if (mainView != null) {
+                        mainView.startAnimation(zoomIn_helpStart);
+                    }
+                }
+            }
+        }
     }
 
 

@@ -14,7 +14,8 @@
     android:clipToPadding="false"
     android:clipToOutline="false"
     android:background="@android:color/transparent"
-    tools:context=".LauncherApp">
+    tools:context=".LauncherApp"
+    tools:ignore="UnusedAttribute">
     <RelativeLayout
         android:id="@+id/settings_hh"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,7 +36,7 @@
         android:contentDescription="@string/app_wallpaper"
         android:scaleType="centerCrop"
         android:background="@android:color/transparent"
-        android:src="@drawable/bg"
+        android:src="@drawable/fully_trans"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <androidx.media3.ui.PlayerView
@@ -375,11 +376,28 @@
             <RelativeLayout
                 android:animateLayoutChanges="true"
                 android:gravity="top|center"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:id="@+id/teto_cont"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/loadingBlock"
+        android:visibility="gone"
+        android:animateLayoutChanges="true"
+        android:gravity="center"
+        android:background="@color/bar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:maxHeight="256dp"
+            android:maxWidth="256dp"
+            android:indeterminate="true"
+            app:indicatorColor="@color/purple_200"
+            app:trackColor="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

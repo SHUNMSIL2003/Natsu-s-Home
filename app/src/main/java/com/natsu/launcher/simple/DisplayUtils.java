@@ -19,19 +19,21 @@ public class DisplayUtils {
     }
 
     public static boolean isFirst(@NonNull Context context) {
-        final boolean firstState = loadAppFirstState(context);
-        if (firstState) {
-            setAppFirstState(context);
+        final int firstState = loadAppFirstState(context);
+        if (firstState<3) {
+            setAppFirstState(context,firstState);
+            return true;
         }
-        return firstState;
+        return false;
     }
-    public static void setAppFirstState(@NonNull Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("app_load_state", Context.MODE_PRIVATE);
-        prefs.edit().putBoolean("firstLoad", false).apply();
+
+    private static void setAppFirstState(@NonNull Context context, int i) {
+        SharedPreferences prefs = context.getSharedPreferences("app_load_state_v2", Context.MODE_PRIVATE);
+        prefs.edit().putInt("first_load", i+1).apply();
     }
-    public static boolean loadAppFirstState(@NonNull Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("app_load_state", Context.MODE_PRIVATE);
-        return prefs.getBoolean("firstLoad", true);
+    private static int loadAppFirstState(@NonNull Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("app_load_state_v2", Context.MODE_PRIVATE);
+        return prefs.getInt("first_load", 0);
     }
 
 

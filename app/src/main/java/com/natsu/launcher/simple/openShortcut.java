@@ -15,6 +15,7 @@ public class openShortcut extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        LauncherApp.changeWallpaper = true;
         startActivity(intent);
         finishAffinity();
     }
