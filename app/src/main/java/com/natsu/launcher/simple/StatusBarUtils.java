@@ -9,14 +9,16 @@ public class StatusBarUtils {
     public static void setStatusBarColor(Window window, int color) {
 
         // Updated for API 30+
-        WindowInsetsController insetsController = window.getInsetsController();
-        if (insetsController != null) {
-            if (isColorLight(color)) {
-                insetsController.setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
-            } else {
-                insetsController.setSystemBarsAppearance(0, // Clear any previous settings
-                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            WindowInsetsController insetsController = window.getInsetsController();
+            if (insetsController != null) {
+                if (isColorLight(color)) {
+                    insetsController.setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                } else {
+                    insetsController.setSystemBarsAppearance(0, // Clear any previous settings
+                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                }
             }
         }
     }

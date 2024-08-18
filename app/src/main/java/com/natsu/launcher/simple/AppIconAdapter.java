@@ -520,8 +520,7 @@ public class AppIconAdapter extends RecyclerView.Adapter<AppIconAdapter.AppIconV
             return getIconByPkgorg(context, packageName);
         }
         Drawable appIconDrawable = applicationInfo.loadIcon(packageManager);
-        if (appIconDrawable instanceof AdaptiveIconDrawable) {
-            AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) appIconDrawable;
+        if (appIconDrawable instanceof AdaptiveIconDrawable adaptiveIcon) {
             Drawable foreground = adaptiveIcon.getForeground();
             Drawable background = adaptiveIcon.getBackground();
             if (foreground != null && background != null) {

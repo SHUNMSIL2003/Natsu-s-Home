@@ -124,7 +124,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/change_wallpaper"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -161,7 +161,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/video_wallpaper"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -198,7 +198,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/transparent_wallpaper"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -218,7 +218,7 @@
                             android:gravity="center|end"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="?attr/colorControlNormal"
+                            android:textColor="@color/md_theme_onBackground"
                             android:text="@string/apply"
                             android:layout_height="32dp"/>
                     </RelativeLayout>
@@ -239,7 +239,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/background_dim"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -275,7 +275,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/top_bar_dim"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -311,7 +311,7 @@
                         android:gravity="center|start"
                         android:textSize="18sp"
                         android:textStyle="normal"
-                        android:textColor="?attr/colorControlNormal"
+                        android:textColor="@color/md_theme_onBackground"
                         android:text="@string/reset_cache"
                         android:layout_height="wrap_content"/>
                     <RelativeLayout
@@ -331,7 +331,7 @@
                             android:gravity="center|end"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="?attr/colorControlNormal"
+                            android:textColor="@color/md_theme_onBackground"
                             android:text="@string/clear"
                             android:layout_height="32dp"/>
                     </RelativeLayout>
@@ -346,7 +346,7 @@
                     android:gravity="center"
                     android:textSize="11sp"
                     android:textStyle="normal"
-                    android:textColor="?attr/colorControlNormal"
+                    android:textColor="@color/md_theme_onBackground"
                     android:text="@string/long_click_anywhere_above_to_collabs_settings_areia"
                     android:layout_height="wrap_content"/>
             </LinearLayout>

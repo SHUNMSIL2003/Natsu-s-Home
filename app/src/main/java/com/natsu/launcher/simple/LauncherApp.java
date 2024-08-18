@@ -170,7 +170,13 @@ public class LauncherApp  extends AppCompatActivity {
         if (result > maxHeightInPixels) result = maxHeightInPixels;
         if (result < miniHeightInPixels) result = miniHeightInPixels;
 
-        return result;
+        final int paddingForAccess = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                16,
+                getResources().getDisplayMetrics()
+        );
+
+        return result + paddingForAccess;
     }
     public static final List<String> usedWallpapers = new ArrayList<>();
     public static final List<String> wallpaperImageFiles = new ArrayList<>();
@@ -215,11 +221,7 @@ public class LauncherApp  extends AppCompatActivity {
         findViewById(R.id.loadingBlock).setOnClickListener(v -> Toast.makeText(getBaseContext(),"Please Waite!",Toast.LENGTH_SHORT).show());
         loadingBlockWeakReference = new WeakReference<>(findViewById(R.id.loadingBlock));
 
-        final View status_bar_height = findViewById(R.id.status_bar_view);
-        ViewGroup.LayoutParams params = status_bar_height.getLayoutParams();
-        params.height = getStatusBarHeight();
-        status_bar_height.setLayoutParams(params);
-        status_bar_height.requestLayout();
+        loadStatusBar();
 
         final Bitmap originalBitmap = WallpaperUtils.loadWallpaper(getBaseContext());
         final ImageView wallpaper = findViewById(R.id.img_view_app_wallpaper);
@@ -485,6 +487,18 @@ public class LauncherApp  extends AppCompatActivity {
         }
     }
 
+    private void loadStatusBar(){
+        getMainExecutor().execute(() -> {
+            final @Nullable View status_bar_height = findViewById(R.id.status_bar_view);
+            if(status_bar_height!=null) {
+                ViewGroup.LayoutParams params = status_bar_height.getLayoutParams();
+                params.height = getStatusBarHeight();
+                status_bar_height.setLayoutParams(params);
+                status_bar_height.requestLayout();
+            }
+        });
+    }
+
     private void pickVideoWallpaper(){
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
@@ -525,15 +539,7 @@ public class LauncherApp  extends AppCompatActivity {
         if(BGAlpha==0&&BarAlpha==0){
             StatusBarUtils.setStatusBarColor(getWindow(),Color.BLACK);
         }else {
-            if(BGAlpha>0&&BarAlpha>0){
-                StatusBarUtils.setStatusBarColor(getWindow(),getColor(R.color.bar_bg_exp));
-            } else {
-                if(BarAlpha==0){
-                    StatusBarUtils.setStatusBarColor(getWindow(),getColor(R.color.bar_bg_exp));
-                } else {
-                    StatusBarUtils.setStatusBarColor(getWindow(),getColor(R.color.bar_bg_exp));
-                }
-            }
+            StatusBarUtils.setStatusBarColor(getWindow(),getColor(R.color.bar_bg_exp));
         }
     }
 
@@ -638,7 +644,10 @@ public class LauncherApp  extends AppCompatActivity {
             packageNames.addAll(newList);
             if (adapter != null) adapter.replaceAllItems(packageNames, true);
         }
+
+        loadStatusBar();
     }
+
     final static int wallpaperChangeInt = 640;
     @Override
     protected void onPause() {
