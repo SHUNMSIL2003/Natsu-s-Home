@@ -20,7 +20,6 @@
         tools:ignore="UnusedAttribute">
 
         <activity
-            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTop"
             android:enabled="true"
             android:icon="@mipmap/ic_launcher"
@@ -36,7 +35,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTop"
             android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize"

@@ -38,7 +38,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -188,7 +187,8 @@ public class LauncherApp  extends AppCompatActivity {
             setCrashState(true);
             finish();
         });
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+
+        /* getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 // Your custom back handling logic (e.g., save data, prompt user)
@@ -196,7 +196,7 @@ public class LauncherApp  extends AppCompatActivity {
                 if(!LauncherUtils.isHomeScreenApp(getBaseContext()))moveTaskToBack(true);
             }
 
-        });
+        }); */
 
         handlerThread = new HandlerThread("MyBackgroundThread");
         handlerThread.start(); // Make sure to start the thread
